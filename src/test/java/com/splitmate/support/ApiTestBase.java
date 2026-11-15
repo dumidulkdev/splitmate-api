@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -32,6 +33,13 @@ public abstract class ApiTestBase {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json.writeValueAsString(body)))
                 .andExpect(status().isCreated())
+                .andReturn();
+        return json.readTree(result.getResponse().getContentAsString());
+    }
+
+    protected JsonNode getJson(String path) throws Exception {
+        MvcResult result = mvc.perform(get(path))
+                .andExpect(status().isOk())
                 .andReturn();
         return json.readTree(result.getResponse().getContentAsString());
     }
