@@ -18,10 +18,12 @@ public class GroupService {
 
     private final GroupRepository groups;
     private final MemberRepository members;
+    private final List<MemberActivity> activity;
 
-    public GroupService(GroupRepository groups, MemberRepository members) {
+    public GroupService(GroupRepository groups, MemberRepository members, List<MemberActivity> activity) {
         this.groups = groups;
         this.members = members;
+        this.activity = activity;
     }
 
     @Transactional
@@ -61,6 +63,9 @@ public class GroupService {
     @Transactional
     public void removeMember(UUID groupId, UUID memberId) {
         Member member = requireMember(groupId, memberId);
+        if (activity.stream().anyMatch(check -> check.hasActivity(memberId))) {
+            throw new BadRequestException("This member still has expenses or settlements in the group");
+        }
         member.getGroup().removeMember(member);
     }
 
