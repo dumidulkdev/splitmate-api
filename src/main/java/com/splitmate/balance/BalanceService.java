@@ -8,6 +8,8 @@ import com.splitmate.expense.ExpenseShare;
 import com.splitmate.group.Group;
 import com.splitmate.group.GroupService;
 import com.splitmate.group.Member;
+import com.splitmate.settlement.Settlement;
+import com.splitmate.settlement.SettlementRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,10 +25,12 @@ public class BalanceService {
 
     private final GroupService groups;
     private final ExpenseRepository expenses;
+    private final SettlementRepository settlements;
 
-    public BalanceService(GroupService groups, ExpenseRepository expenses) {
+    public BalanceService(GroupService groups, ExpenseRepository expenses, SettlementRepository settlements) {
         this.groups = groups;
         this.expenses = expenses;
+        this.settlements = settlements;
     }
 
     @Transactional(readOnly = true)
@@ -41,6 +45,10 @@ public class BalanceService {
             for (ExpenseShare share : expense.getShares()) {
                 credit(nets, share.getMember().getId(), share.getAmount().negate());
             }
+        }
+        for (Settlement settlement : settlements.findByGroupIdOrderByCreatedAtAsc(groupId)) {
+            credit(nets, settlement.getFromMember().getId(), settlement.getAmount());
+            credit(nets, settlement.getToMember().getId(), settlement.getAmount().negate());
         }
         return group.getMembers().stream()
                 .sorted(Comparator.comparing(Member::getName, String.CASE_INSENSITIVE_ORDER))
