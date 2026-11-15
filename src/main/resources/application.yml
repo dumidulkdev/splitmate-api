@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: splitmate
+  datasource:
+    url: jdbc:h2:mem:splitmate;DB_CLOSE_DELAY=-1;MODE=PostgreSQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  jackson:
+    default-property-inclusion: non_null
+
+server:
+  port: 8080
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    doc-expansion: list
+    display-request-duration: true
+
+logging:
+  level:
+    com.splitmate: info
